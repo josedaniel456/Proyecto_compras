@@ -9,10 +9,17 @@ namespace Proyecto_compras.Data
 
         public ConexionBD(IConfiguration configuration)
         {
-            _connectionString = configuration.GetConnectionString("ConexionMySQL");
+            // ✅ Primero intenta leer del entorno (Render)
+            _connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
+
+            // ✅ Si no existe, usa la conexión local de appsettings.json
+            if (string.IsNullOrEmpty(_connectionString))
+            {
+                _connectionString = configuration.GetConnectionString("DefaultConnection");
+            }
         }
 
-        public MySqlConnection CrearConexion()
+        public MySqlConnection ObtenerConexion()
         {
             return new MySqlConnection(_connectionString);
         }
