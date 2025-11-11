@@ -2,6 +2,6 @@ services:
   - type: web
     name: Proyecto_compras
     env: dotnet
-    rootDir: Proyecto_compras
+    plan: free
     buildCommand: "dotnet publish -c Release -o out"
     startCommand: "dotnet out/Proyecto_compras.dll"
