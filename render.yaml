@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: proyecto-compras
+    env: dotnet
+    rootDir: Proyecto_compras
+    buildCommand: "dotnet publish -c Release -o out"
+    startCommand: "dotnet out/Proyecto_compras.dll"
