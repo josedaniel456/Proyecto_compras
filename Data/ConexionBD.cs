@@ -19,7 +19,8 @@ namespace Proyecto_compras.Data
             }
         }
 
-        public MySqlConnection ObtenerConexion()
+        // 🔹 Cambiado de "ObtenerConexion" a "CrearConexion"
+        public MySqlConnection CrearConexion()
         {
             return new MySqlConnection(_connectionString);
         }
