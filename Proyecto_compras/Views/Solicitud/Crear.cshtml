@@ -1,0 +1,135 @@
+﻿@model Proyecto_compras.Models.Solicitud
+
+<body>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Registrar Solicitud</h2>
+
+    <form method="post" class="mx-auto" style="max-width:600px;" id="formSolicitud">
+        <div class="mb-3">
+            <label class="form-label">N° Requerimiento</label>
+            <input asp-for="NumReque" class="form-control" required />
+        </div>
+            <div class="mb-3">
+                <label class="form-label">N° Solicitud (se genera automáticamente)</label>
+                <input class="form-control" readonly value="(Se generará automáticamente al guardar)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Proveedores</label>
+                <select asp-for="ProveedoresIds" class="form-select" id="proveedorSelect" multiple required>
+                    <option value="">Seleccione uno o más proveedores...</option>
+                    @foreach (var p in ViewBag.Proveedores)
+                    {
+                        <option value="@p.Id" data-correo="@p.correo">@p.razon_social</option>
+                    }
+                </select>
+                <small class="text-muted">Mantén presionado Ctrl (Windows) para seleccionar varios.</small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Correos seleccionados</label>
+                <textarea id="correosProveedores" class="form-control" rows="2" readonly></textarea>
+            </div>
+
+        <div class="mb-3">
+            <label class="form-label">Planta</label>
+            <select asp-for="Planta" class="form-select" required>
+                <option value="">Seleccione una planta...</option>
+                <option value="Pacífico">Pacífico</option>
+                <option value="Neón">Neón</option>
+                <option value="Ventanilla">Ventanilla</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Fecha de Entrega</label>
+            <input asp-for="FechaEntrega" type="date" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Enviar Solicitud</button>
+    </form>
+</div>
+    <div class="modal fade" id="modalExito" tabindex="-1" aria-labelledby="modalExitoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalExitoLabel">Solicitud enviada</h5>
+                </div>
+                <div class="modal-body">
+                    La solicitud se envió correctamente al proveedor.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="modalError" tabindex="-1" aria-labelledby="modalErrorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalErrorLabel">Error al enviar</h5>
+                </div>
+                <div class="modal-body">
+                    No se pudo enviar la solicitud. Asegúrate de llenar todos los campos requeridos.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @section Scripts {
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                $('#proveedorSelect').select2({
+                    placeholder: "Buscar y seleccionar proveedores...",
+                    allowClear: true,
+                    width: '100%',
+                    language: {
+                        noResults: function () {
+                            return "No se encontraron proveedores";
+                        }
+                    }
+                });
+                $('#proveedorSelect').on('change', function () {
+                    const correos = $(this).find('option:selected').map(function () {
+                        return $(this).data('correo');
+                    }).get().join(", ");
+                    $('#correosProveedores').val(correos);
+                });
+                $('#formSolicitud').on('submit', async function (e) {
+                    e.preventDefault();
+                    const form = e.target;
+                    const data = new FormData(form);
+                    for (let [key, value] of data.entries()) {
+                        if (value.trim() === "") {
+                            new bootstrap.Modal(document.getElementById('modalError')).show();
+                            return;
+                        }
+                    }
+                    try {
+                        const response = await fetch('/Solicitud/Crear', {
+                            method: 'POST',
+                            body: data
+                        });
+                        if (response.ok) {
+                            const modalExito = new bootstrap.Modal(document.getElementById('modalExito'));
+                            modalExito.show();
+                            form.reset();
+                            $('#proveedorSelect').val(null).trigger('change');
+                            setTimeout(() => modalExito.hide(), 3000);
+                        } else {
+                            new bootstrap.Modal(document.getElementById('modalError')).show();
+                        }
+                    } catch (error) {
+                        new bootstrap.Modal(document.getElementById('modalError')).show();
+                    }
+                });
+            });
+        </script>
+    }
+
+</body>

@@ -1,0 +1,20 @@
+﻿@model Proyecto_compras.Models.Usuario
+
+<h2>Editar Usuario</h2>
+
+<form method="post" asp-action="Editar" class="mt-3">
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label>Nombre</label>
+        <input asp-for="Nombre" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Correo</label>
+        <input asp-for="Correo" type="email" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Rol</label>
+        <input asp-for="Rol" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+</form>

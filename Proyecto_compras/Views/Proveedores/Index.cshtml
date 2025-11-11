@@ -1,0 +1,47 @@
+﻿@model List<Proyecto_compras.Models.Proveedor>
+
+<h2>Gestión de Proveedores</h2>
+
+<form method="get" class="mb-3">
+    <input type="text" name="filtro" placeholder="Buscar por nombre o RUC" value="@ViewBag.Filtro" class="form-control w-50 d-inline" />
+    <button class="btn btn-primary">Buscar</button>
+    <a href="/Proveedores/Crear" class="btn btn-success">+ Nuevo</a>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Razon Social</th>
+            <th>RUC</th>
+            <th>Correo</th>
+            <th>Celular</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.razon_social</td>
+                <td>@p.ruc</td>
+                <td>@p.correo</td>
+                <td>@p.celular</td>
+                <td>
+                    @if (p.estado)
+                    {
+                        <span class="text-success">Activo</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Inactivo</span>
+                    }
+                </td>
+                <td>
+                    <a href="/Proveedores/Editar/@p.Id" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="/Proveedores/CambiarEstado/@p.Id" class="btn btn-secondary btn-sm">Cambiar Estado</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

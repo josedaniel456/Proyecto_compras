@@ -1,0 +1,106 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="modulos-wrapper">
+    <header class="encabezado">
+        <img src="https://www.etna.com.pe/wp-content/themes/hanan_etna/img/etna-slogan.png" alt="Logo" class="logo">
+        <h2 class="titulo">Panel de Módulos</h2>
+    </header>
+    <div class="container text-center">
+        <div class="modulos-container">
+            <a href="/Proveedores/Index" class="modulo">
+                <img src="https://wherex.com.pe/wp-content/uploads/sites/3/2023/05/11667278_20945983-scaled.jpg" alt="Proveedores">
+                <span>Proveedores</span>
+            </a>
+
+            <a href="/Solicitud/Crear" class="modulo">
+                <img src="https://cdn-icons-png.flaticon.com/256/10926/10926178.png" alt="Solicitud de cotizacion">
+                <span>Solicitud de cotizacion</span>
+            </a>
+
+            <a href="/Comparativo/Index" class="modulo">
+                <img src="https://cdn-icons-png.freepik.com/512/12512/12512899.png" alt="Comparativo">
+                <span>Comparativo</span>
+            </a>
+
+            <a href="/Pedidos/Index" class="modulo">
+                <img src="https://img.freepik.com/vector-gratis/asistencia-papel-lista-comprobacion-dibujos-animados-icono-vectorial-ilustracion-educacion-negocio-aislado-plano_138676-10698.jpg" alt="Historial">
+                <span>Historial</span>
+            </a>
+
+            <a href="/Usuario/Index" class="modulo">
+                <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" alt="Usuarios">
+                <span>Usuarios</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modulos-wrapper {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #FFFF, #0d6efd);
+        overflow: hidden;
+        margin: 0;
+    }
+    .encabezado {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 50px;
+        color: white;
+    }
+
+    .logo {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+    }
+
+    .titulo {
+        font-weight: bold;
+        font-size: 2rem;
+        margin: 0;
+    }
+    .modulos-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: nowrap;
+    }
+    .modulo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: black;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: white;
+        padding: 15px;
+        border-radius: 15px;
+        width: 150px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+        .modulo:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        .modulo img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+    body {
+        margin: 0;
+        overflow-x: hidden;
+    }
+</style>

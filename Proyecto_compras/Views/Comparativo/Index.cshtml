@@ -1,0 +1,101 @@
+﻿@model Proyecto_compras.Models.ComparativoViewModel
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Cuadro Comparativo</h2>
+
+    <form method="post" class="text-center mb-4">
+        <input type="text" name="numSolicitud" class="form-control w-50 d-inline" placeholder="Ingrese el número de solicitud (ej. SOL-001)" required />
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">@ViewBag.Error</div>
+    }
+
+    @if (Model?.Proveedores != null && Model.Proveedores.Any())
+    {
+        <h4>Solicitud: @Model.NumSolicitud</h4>
+
+        <table class="table table-bordered mt-3">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Proveedor</th>
+                    <th>N° Artículo</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Precio Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.Proveedores)
+                {
+                    foreach (var item in p.Items)
+                    {
+                        <tr>
+                            <td>@p.RazonSocial</td>
+                            <td>@item.NumArticulo</td>
+                            <td>@item.Cantidad</td>
+                            <td>@item.PrecioUnitario.ToString("C")</td>
+                            <td>@item.PrecioTotal.ToString("C")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <div class="mt-5">
+            <h5>Comparación de precios totales</h5>
+            <canvas id="graficoPrecios" height="120"></canvas>
+            <button id="btnExportar" class="btn btn-danger mt-3">Exportar a PDF</button>
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    @{
+        // ✅ Serializamos los datos desde C# para evitar errores de Razor/Newtonsoft
+        var labels = Model?.Proveedores?.Select(p => p.RazonSocial).ToList() ?? new List<string>();
+        var totals = Model?.Proveedores?.Select(p => p.TotalGeneral).ToList() ?? new List<decimal>();
+        var jsonLabels = System.Text.Json.JsonSerializer.Serialize(labels);
+        var jsonTotals = System.Text.Json.JsonSerializer.Serialize(totals);
+    }
+
+    <script>
+        const proveedores = @Html.Raw(jsonLabels);
+        const totales = @Html.Raw(jsonTotals);
+
+        if (proveedores.length && totales.length) {
+            const ctx = document.getElementById('graficoPrecios').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: proveedores,
+                    datasets: [{
+                        label: 'Precio Total por Proveedor',
+                        data: totales,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
+
+        document.getElementById('btnExportar').addEventListener('click', () => {
+            import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js').then(() => {
+                html2canvas(document.body).then(canvas => {
+                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                    const img = canvas.toDataURL('image/png');
+                    pdf.addImage(img, 'PNG', 10, 10, 190, 0);
+                    pdf.save('Comparativo.pdf');
+                });
+            });
+        });
+    </script>
+}

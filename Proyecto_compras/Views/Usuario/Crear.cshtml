@@ -1,0 +1,19 @@
+﻿@model Proyecto_compras.Models.Usuario
+
+<h2>Registrar Usuario</h2>
+
+<form method="post" asp-action="Crear" class="mt-3">
+    <div class="mb-3">
+        <label>Nombre</label>
+        <input asp-for="Nombre" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Correo</label>
+        <input asp-for="Correo" type="email" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Contraseña</label>
+        <input asp-for="Contraseña" type="password" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-success">Guardar</button>
+</form>
