@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: Proyecto_compras
-    env: dotnet
-    plan: free
-    buildCommand: "dotnet publish -c Release -o out"
-    startCommand: "dotnet out/Proyecto_compras.dll"
