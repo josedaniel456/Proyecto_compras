@@ -175,7 +175,7 @@ namespace Proyecto_compras.Controllers
 
             if (!string.IsNullOrEmpty(correoProveedor))
             {
-                string enlace = $"https://tusitio.com/ProveedorRespuesta/Form?numSolicitud={numSolicitud}&proveedorId={proveedorId}";
+                string enlace = $"https://proyecto-compras.onrender.com/ProveedorRespuesta/Form?numSolicitud={numSolicitud}&proveedorId={proveedorId}";
 
                 using (var smtp = new SmtpClient("smtp.gmail.com", 587))
                 {
