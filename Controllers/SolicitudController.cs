@@ -44,61 +44,70 @@ namespace Proyecto_compras.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public IActionResult Crear(Solicitud solicitud)
         {
-            solicitud.FechaCreacion = DateTime.Now;
-            solicitud.Estado = "Pendiente";
-
-            using (var conexion = _conexionBD.CrearConexion())
+            try
             {
-                conexion.Open();
+                solicitud.FechaCreacion = DateTime.Now;
+                solicitud.Estado = "Pendiente";
 
-                // ✅ Generar número de solicitud tipo SOL-001, SOL-002...
-                string nuevoNumero = GenerarNumeroSolicitud(conexion);
-
-                // ✅ Insertar solicitud
-                string query = @"INSERT INTO solicitud (num_solicitud, num_reque, planta, fecha_entrega, fecha_creacion, estado)
-                                 VALUES (@num_solicitud, @num_reque, @planta, @fecha_entrega, @fecha_creacion, @estado);
-                                 SELECT LAST_INSERT_ID();";
-
-                int solicitudId;
-                using (var cmd = new MySqlCommand(query, conexion))
+                using (var conexion = _conexionBD.CrearConexion())
                 {
-                    cmd.Parameters.AddWithValue("@num_solicitud", nuevoNumero);
-                    cmd.Parameters.AddWithValue("@num_reque", solicitud.NumReque);
-                    cmd.Parameters.AddWithValue("@planta", solicitud.Planta);
-                    cmd.Parameters.AddWithValue("@fecha_entrega", solicitud.FechaEntrega);
-                    cmd.Parameters.AddWithValue("@fecha_creacion", solicitud.FechaCreacion);
-                    cmd.Parameters.AddWithValue("@estado", solicitud.Estado);
+                    conexion.Open();
 
-                    solicitudId = Convert.ToInt32(cmd.ExecuteScalar());
-                }
-                var correoUsuario = HttpContext.Session.GetString("correoUsuario");
-                var nombreUsuario = HttpContext.Session.GetString("nombreUsuario");
-                if (!string.IsNullOrEmpty(correoUsuario))
-                {
-                    EnviarCorreoUsuario(correoUsuario, nombreUsuario, nuevoNumero);
-                }
+                    string nuevoNumero = GenerarNumeroSolicitud(conexion);
 
-                // ✅ Insertar relación con proveedores y enviar correo
-                foreach (var proveedorId in solicitud.ProveedoresIds)
-                {
-                    string insertRelacion = @"INSERT INTO solicitud_proveedor (solicitud_id, proveedor_id)
-                                              VALUES (@solicitud_id, @proveedor_id)";
-                    using (var cmdRel = new MySqlCommand(insertRelacion, conexion))
+                    string query = @"INSERT INTO solicitud (num_solicitud, num_reque, planta, fecha_entrega, fecha_creacion, estado)
+                             VALUES (@num_solicitud, @num_reque, @planta, @fecha_entrega, @fecha_creacion, @estado);
+                             SELECT LAST_INSERT_ID();";
+
+                    int solicitudId;
+                    using (var cmd = new MySqlCommand(query, conexion))
                     {
-                        cmdRel.Parameters.AddWithValue("@solicitud_id", solicitudId);
-                        cmdRel.Parameters.AddWithValue("@proveedor_id", proveedorId);
-                        cmdRel.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@num_solicitud", nuevoNumero);
+                        cmd.Parameters.AddWithValue("@num_reque", solicitud.NumReque);
+                        cmd.Parameters.AddWithValue("@planta", solicitud.Planta);
+                        cmd.Parameters.AddWithValue("@fecha_entrega", solicitud.FechaEntrega);
+                        cmd.Parameters.AddWithValue("@fecha_creacion", solicitud.FechaCreacion);
+                        cmd.Parameters.AddWithValue("@estado", solicitud.Estado);
+
+                        solicitudId = Convert.ToInt32(cmd.ExecuteScalar());
                     }
 
-                    // ✅ Ahora sí, pasamos el número de solicitud
-                    EnviarCorreoProveedor(proveedorId, nuevoNumero);
-                }
-            }
+                    // Enviar correo al usuario
+                    var correoUsuario = HttpContext.Session.GetString("correoUsuario");
+                    var nombreUsuario = HttpContext.Session.GetString("nombreUsuario");
+                    if (!string.IsNullOrEmpty(correoUsuario))
+                    {
+                        EnviarCorreoUsuario(correoUsuario, nombreUsuario, nuevoNumero);
+                    }
 
-            TempData["Mensaje"] = "Solicitud enviada correctamente.";
-            return RedirectToAction("Crear");
+                    // Insertar relación con proveedores y enviar correo
+                    foreach (var proveedorId in solicitud.ProveedoresIds)
+                    {
+                        string insertRelacion = @"INSERT INTO solicitud_proveedor (solicitud_id, proveedor_id)
+                                          VALUES (@solicitud_id, @proveedor_id)";
+                        using (var cmdRel = new MySqlCommand(insertRelacion, conexion))
+                        {
+                            cmdRel.Parameters.AddWithValue("@solicitud_id", solicitudId);
+                            cmdRel.Parameters.AddWithValue("@proveedor_id", proveedorId);
+                            cmdRel.ExecuteNonQuery();
+                        }
+
+                        EnviarCorreoProveedor(proveedorId, nuevoNumero);
+                    }
+                }
+
+                // ✅ Retornamos JSON (para que el modal JS funcione)
+                return Json(new { success = true, message = "Solicitud enviada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                // Log opcional
+                Console.WriteLine($"Error al crear solicitud: {ex.Message}");
+                return Json(new { success = false, message = "Error al registrar la solicitud." });
+            }
         }
         private void EnviarCorreoUsuario(string correoUsuario, string nombreUsuario, string numSolicitud)
         {
