@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: proyecto-compras
+    name: Proyecto_compras
     env: dotnet
     rootDir: Proyecto_compras
     buildCommand: "dotnet publish -c Release -o out"
